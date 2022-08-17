@@ -1,5 +1,5 @@
 # dynappvscode README
-
+![Alt text](icon.png "a title")
 This extension alows vscode to download and publish to Dynapp, developed by WIP AB. 
 It has directly been taken from the atom package dynapp-atom
 https://github.com/wip-opensource/dynapp-atom
