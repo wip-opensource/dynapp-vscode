@@ -1,65 +1,42 @@
 # dynappvscode README
 
-This is the README for your extension "dynappvscode". After writing up a brief description, we recommend including the following sections.
+This extension alows vscode to download and publish to Dynapp, developed by WIP AB. 
+It has directly been taken from the atom package dynapp-atom
+https://github.com/wip-opensource/dynapp-atom
 
-## Features
+# Get started!
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+* In your directory, open commands with "ctrl+shift+p" and run "create dynapp config" or ctrl+alt+C (mac: shift+cmd+c) 
+* Open the new file 'dynappconfig.json' and enter your credentials.
+* run "download from dynapp" (or ctrl + alt + o) to download your project from dynapp-server.
+* You can now locally edit the files.
+* To publish your changes, run "upload to Dynapp" (or press ctrl + alt + u/ shift+cmd+u)
 
-For example if there is an image subfolder under your extension project workspace:
+## dynappconfig.json
 
-\!\[feature X\]\(images/feature-x.png\)
+* **username** - The username and group separated with slash to use for requests againts DynApp.
+* **password** - The password for the given user.
+* **group** - The group name of the app to work against.
+* **app** - The app id of the app to work against.
+* **baseurl** - The base url of the DynApp server.
+* **workpath** - Path to where the app files are saved relative to the config file.
+* **rungroup** - For use with DynApp Webcomponents. Overrides the value of group when running a web with proxy locally.
+* **runapp** - For use with DynApp Webcomponents. Overrides the value of app when running a web with proxy locally.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## TODO
+As this package was ported quickly from atom packages due to sunseting of Atom, the packaged could use some more care.
+For example, it has certain dependencies that won work when upgrading them to a new version (node-fetch, js-base64)
 
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Ability to send py code to server and retrive the response, just like the native Dynapp editor would be very usefull.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+Ported the extension from atom packages to VS code
 
 ### 1.0.0
+First functional version of the port
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
 
 ---
 
-## Working with Markdown
 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
