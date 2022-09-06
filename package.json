@@ -47,7 +47,27 @@
         "key": "ctrl+alt+C",
         "mac": "shift+cmd+c"
       }
-    ]
+    ],
+    "configuration": {
+       "title": "DynappvsCode",
+       "properties": {
+          "dynappvscode.defaultUserNameAndGroup":{
+            "type": "string",
+            "default": "<username>/<devgroups>",
+            "description": "What user to use by default in dynappconfig. Format: <username>/<devgroups>"
+          },
+          "dynappvscode.defaultPassword": {
+            "type": "string",
+            "default": "<password>",
+            "description": "What password to use by default in dynappconfig"
+          },
+          "dynappvscode.defaultBaseUrl": {
+            "type": "string",
+            "default": "https://dynappbeta.wip.se/",
+            "description": "What url to use by default in dynappconfig"
+          }
+       }
+    }
   },
   "scripts": {
     "lint": "eslint .",

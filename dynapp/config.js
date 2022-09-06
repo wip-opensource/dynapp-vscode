@@ -46,6 +46,10 @@ async function create() {
     'rungroup': '',
     'runapp': ''
   };
+  dynappConfig.username = vscode.workspace.getConfiguration('dynappvscode').get("defaultUserNameAndGroup")
+  dynappConfig.password = vscode.workspace.getConfiguration('dynappvscode').get("defaultPassword")
+  dynappConfig.baseUrl = vscode.workspace.getConfiguration('dynappvscode').get("defaultBaseUrl")
+  
   let configFile = path.join(projectPath(), 'dynappconfig.json');
   let configFileExists = await fs.exists(configFile);
   if (!configFileExists) {
