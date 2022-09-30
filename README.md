@@ -34,12 +34,12 @@ Ability to send py code to server and retrive the response, just like the native
 
 ## Release Notes
 
-Ported the extension from atom packages to VS code
+### 1.1.0
+Added settings for default config values
 
 ### 1.0.0
 First functional version of the port
-
-
+Ported the extension from atom packages to VS code
 ---
 
 
