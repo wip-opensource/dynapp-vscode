@@ -30,13 +30,11 @@ function activate(context) {
 }
 
 async function createConfig() {
-	vscode.window.showInformationMessage('Createing config ');
+	vscode.window.showInformationMessage('Creating config');
 	await config.create();
 	await createWorkFolder(config.workPath());
 	await createIgnore(false, '.hgignore');
 	await createIgnore(false, '.gitignore');
-
-	vscode.window.showInformationMessage('Createing config ');
 }
 
 
