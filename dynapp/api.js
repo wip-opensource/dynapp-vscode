@@ -20,7 +20,7 @@ function authHeader() {
 
 function _headers(headers) {
   return Object.assign({
-    'User-Agent': 'dynapp-atom',
+    'User-Agent': 'dynapp-vscode',
     'Authorization': authHeader()
   }, headers);
 }
