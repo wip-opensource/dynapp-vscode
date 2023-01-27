@@ -47,9 +47,6 @@ async function listFiles(folder, filter) {
     let file = files[i];
     let fileWithPath = path.join(folder, file);
 
-    if (filter && !filter(fileWithPath)) {
-      continue;
-    }
     let stats = await fs.stat(fileWithPath);
     if (stats.isDirectory()) {
       let subFiles = await listFiles(path.join(folder, file), filter);
@@ -61,24 +58,72 @@ async function listFiles(folder, filter) {
     }
   }
 
+  if (filter) {
+    result = result.filter((file) => {
+      return filter(path.join(folder, file));
+    });
+  }
+
   return result.slice(0);
 }
 
-function filterNoNodeModules(fileName) {
-  return fileName.indexOf('node_modules/') === -1;
-}
 
-function filterMetaFiles(fileName) {
-  return !fileName.endsWith('.meta.json');
-}
 
 class DynappObjects {
-  constructor(folder, fileExt, filter) {
+  constructor(folder, fileExt) {
     this.folder = folder;
     // TODO: Use a single meta-file per type (data-items, data-source-items, data-objects)
     //       Would remove need to check file extension and have filter
+    //       Would also make file tree more user friendly
     this.fileExt = fileExt || '';
-    this.filter = filter || (() => true);
+    this.ignoreList = this.getIgnoreList();
+  }
+
+  getIgnoreFilePath () {
+    return path.join(config.projectPath(), '.dynappignore');
+  }
+
+  getIgnoreList () {
+    let ignoreContent;
+    try {
+      ignoreContent = fs.readFileSync(this.getIgnoreFilePath(), 'utf8');
+    } catch(err) {
+      if (err.code === 'ENOENT') {
+        // Create a default ignore file
+        ignoreContent = [
+          '# Files to not sync with DynApp',
+          '/node_modules/',
+          '/dist/'
+        ].join('\n');
+        fs.writeFileSync(this.getIgnoreFilePath(), ignoreContent, 'utf8');
+      } else {
+        throw err;
+      }
+    }
+    return ignoreContent
+      .split('\n')
+      .filter(line => !!line && line[0] != '#')
+      .map(line => new RegExp(line.replace(/\//g, path.sep)));
+  }
+
+  getIgnoredFilter () {
+    // Function to determine if file should be ignored or not
+    var ignoreList = this.ignoreList;
+    return function (filePath) {
+      filePath = filePath.split(config.workPath()).slice(-1)[0];
+      if (filePath.indexOf(path.sep) == 0) {
+        filePath = filePath.slice(1);
+      }
+      return ignoreList.some(regex => regex.test(filePath));
+    };
+  }
+
+  getNotIgnoredFilter () {
+    // Function to determine if file should be ignored or not
+    var ignoreFilter = this.getIgnoredFilter();
+    return function (filePath) {
+      return !ignoreFilter(filePath);
+    };
   }
 
   _objectsPath () {
@@ -140,7 +185,7 @@ class DynappObjects {
     let operations = [];
     let objectsPath = this._objectsPath();
     // TODO: Reuse list from dirty() and hashes() ?
-    let localFiles = await listFiles(objectsPath, this.filter);
+    let localFiles = await listFiles(objectsPath, this.getNotIgnoredFilter());
 
     // Do in batches to not exceed open file limit
     var batchSize = 100;
@@ -211,7 +256,7 @@ class DynappObjects {
 
   async dirty() {
     let objectsPath = this._objectsPath();
-    let localFiles = await listFiles(objectsPath, this.filter);
+    let localFiles = await listFiles(objectsPath, this.getNotIgnoredFilter());
     let newObjects = [];
     let deletedObjects = [];
     let changedObjectsOperations = [];
@@ -245,11 +290,28 @@ class DynappObjects {
 
     return [newObjects, changedObjects, deletedObjects];
   }
+
+  async copyIgnored (dest) {
+    // Copy ignored files to a given destination
+    let objectsPath = this._objectsPath();
+    let files = await listFiles(objectsPath, this.getIgnoredFilter());
+    let fileMovements = [];
+    for (let file of files) {
+      let fileMovement = new Promise((resolve, reject) => {
+        let targetFile = path.join(dest, this.folder, file);
+        mkdirp(path.dirname(targetFile)).then(() => {
+          fs.copyFile(path.join(objectsPath, file), targetFile).then(resolve, reject)
+        }, reject);
+      })
+      fileMovements.push(fileMovement)
+    }
+    return await Promise.all(fileMovements);
+  }
 }
 
 class DataItems extends DynappObjects {
   constructor() {
-    super('data-items', null, filterNoNodeModules);
+    super('data-items', null);
   }
 
   async createObject (dataItem, file) {
@@ -377,18 +439,40 @@ class Sync {
     console.log('Zip unpacked');
     const workpath = config.workPath();
 
-    var rootFolderCollapsed = false;
-   
+    // Create a temp folder for items to be kept
+    let tempdir = path.join(workpath, '.dynapp-temp')
+    try {
+      await rmdir(tempdir);
+    } catch (ex) {
+      // tempdir doesn't exist
+    }
+    await fs.mkdir(tempdir)
+    await fs.mkdir(path.join(tempdir, 'data-items'));
+    await fs.mkdir(path.join(tempdir, 'data-source-items'));
+    await fs.mkdir(path.join(tempdir, 'data-objects'));
+    console.log('Created temp folder');
 
+    // Copy files that match .dynappignore to temp folder
+    await Promise.all([
+      this.dataItems.copyIgnored(tempdir),
+      this.dataSourceItems.copyIgnored(tempdir),
+      this.dataObjects.copyIgnored(tempdir)
+    ]);
+    console.log('Moved ignored files to temp');
+
+    // Clear working folders
     await rmdir(path.join(workpath, 'data-items'));
     await rmdir(path.join(workpath, 'data-source-items'));
     await rmdir(path.join(workpath, 'data-objects'));
     console.log('Removed folders');
 
-    await fs.mkdir(path.join(workpath, 'data-items'));
-    await fs.mkdir(path.join(workpath, 'data-source-items'));
-    await fs.mkdir(path.join(workpath, 'data-objects'));
-    console.log('Created folders');
+    // Move back files from temp folder as working folders
+    await fs.rename(path.join(tempdir, 'data-items'), path.join(workpath, 'data-items'));
+    await fs.rename(path.join(tempdir, 'data-source-items'), path.join(workpath, 'data-source-items'));
+    await fs.rename(path.join(tempdir, 'data-objects'), path.join(workpath, 'data-objects'));
+    console.log('Returned ignored files and created folders');
+    await rmdir(tempdir);
+    console.log('Removed temp folder');
 
     let operations = [];
     let dataItemsMeta = [];
