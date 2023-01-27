@@ -1,7 +1,7 @@
 # dynappvscode README
 
 
-This extension alows vscode to download and publish to Dynapp, developed by WIP AB. 
+This extension alows vscode to download and publish to Dynapp, developed by WIP AB.
 It has directly been taken from the atom package dynapp-atom
 https://github.com/wip-opensource/dynapp-atom
 
@@ -9,7 +9,7 @@ https://github.com/wip-opensource/dynapp-atom
 * Download dynappvscode-x.x.x.vsix
 * Open vsCode>File>Preferences>Extensions
 * Click dot meny in EXTENSIONS tab > Install from VSIX > locate dynappvscode-x.x.x.vsix
-* In your directory, open commands with "ctrl+shift+p" and run "create dynapp config" or ctrl+alt+C (mac: shift+cmd+c) 
+* In your directory, open commands with "ctrl+shift+p" and run "create dynapp config" or ctrl+alt+C (mac: shift+cmd+c)
 * Open the new file 'dynappconfig.json' and enter your credentials.
 * run "download from dynapp" (or ctrl + alt + o) to download your project from dynapp-server.
 * You can now locally edit the files.
@@ -32,14 +32,45 @@ For example, it has certain dependencies that won work when upgrading them to a 
 
 Ability to send py code to server and retrive the response, just like the native Dynapp editor would be very usefull.
 
+## Development
+
+The package can be ran in VS Code to test during development.
+
+When ready to realease, commit you changes and tag your release.
+Then build/package a new .vsix file for distribution.
+
+If this is your first time, you first need to install @vsce@.
+
+```
+npm install -g @vscode/vsce
+```
+
+The package the extension. This will create the .vsix file, named using the current version in package.json
+
+```
+vsce package
+```
+
+For more details: https://code.visualstudio.com/api/working-with-extensions/publishing-extension#packaging-extensions
+
+
 ## Release Notes
-Ported the extension from atom packages to VS code
+
+### 1.2.0
+
+* Added support for a .dynappignore file to specify files not to sync
+* Corrected message for creating config
+* Changed user agent in requests
+* Improved log info when uploading
 
 ### 1.1.0
-Added settings for default config values
+
+* Added settings for default config values
 
 ### 1.0.0
-First functional version of the port
+
+* First functional version of the port
+* Ported the extension from atom packages to VS code
 
 ---
 
