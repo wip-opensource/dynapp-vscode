@@ -39,7 +39,7 @@ const rmdir = async function(dir) {
    https://github.com/tc39/proposal-async-iteration
 */
 /* TODO: Can be optimized by not simply awaiting everything. Next file could be read in parallel. */
-async function listFiles(folder, filter) {
+async function listFiles(folder, filter) {
   let result = [];
 
   let files = await fs.readdir(folder);
@@ -152,7 +152,7 @@ class DynappObjects {
     logString += changeInfo.join(', ');
     console.log(logString);
 
-    for (let obj of newObjects) {
+    for (let obj of newObjects) {
       operations.push(this.createObject(obj, path.join(objectsPath, obj)));
     }
     for (let obj of changedObjects) {
@@ -171,7 +171,7 @@ class DynappObjects {
     return await Promise.all(operations);
   }
 
-  createObject (obj, file) {
+  createObject (obj, file) {
     throw new Error('Not implemented');
   }
 
@@ -256,15 +256,15 @@ class DynappObjects {
     return json_stringify_readable(meta);
   }
 
-  async dirty() {
+  async dirty() {
     let objectsPath = this._objectsPath();
     let localFiles = await listFiles(objectsPath, this.getNotIgnoredFilter());
     let newObjects = [];
     let deletedObjects = [];
     let changedObjectsOperations = [];
 
-    for (let file of localFiles) {
-      if (file in this._hashes) {
+    for (let file of localFiles) {
+      if (file in this._hashes) {
         // Check both normal and meta-files for changes
         let operation = md5File(path.join(objectsPath, file)).then((hash) => {
           return this._hashes[file].hash !== hash ? file : null;
@@ -316,7 +316,7 @@ class DataItems extends DynappObjects {
     super('data-items', null);
   }
 
-  async createObject (dataItem, file) {
+  async createObject (dataItem, file) {
     // TODO: Should we use PUT? Then we have to catch eventual error and try PUT if POST already exists.
     // Seems like PUT just overrides everything, and that is kind of what we want.
     return await api.updateDataItem(dataItem, fs.createReadStream(file), await this.readMeta(file));
@@ -336,7 +336,7 @@ class DataSourceItems extends DynappObjects {
     super('data-source-items', '.py');
   }
 
-  async createObject (dataSourceItem, file) {
+  async createObject (dataSourceItem, file) {
     return await api.updateDataSourceItem(dataSourceItem.substring(0, dataSourceItem.lastIndexOf('.py')), await this.generateMeta(file));
   }
 
@@ -354,7 +354,7 @@ class DataObjects extends DynappObjects {
     super('data-objects', '.py');
   }
 
-  async createObject (dataObject, file) {
+  async createObject (dataObject, file) {
     return await api.updateDataObject(dataObject.substring(0, dataObject.lastIndexOf('.py')), await this.generateMeta(file));
   }
 
@@ -418,7 +418,7 @@ class Sync {
     return await fs.writeFile(this.getStateFilePath(), json_stringify_readable(state), 'utf8');
   }
 
-  async upload () {
+  async upload () {
     await this.setHashes();
 
     await Promise.all([
@@ -476,6 +476,7 @@ class Sync {
     await rmdir(tempdir);
     console.log('Removed temp folder');
 
+
     let operations = [];
     let dataItemsMeta = [];
     if ('data-items.json' in unpacked.files) {
@@ -523,7 +524,7 @@ class Sync {
           let dataObjects = JSON.parse(dataObjectsRaw);
           let dataObjectOperations = [];
 
-          for (let dataObject of dataObjects) {
+          for (let dataObject of dataObjects) {
             let code;
             if (dataObject.stylesheet) {
               code = Buffer.from(dataObject.stylesheet, 'base64').toString('utf8');
@@ -545,14 +546,14 @@ class Sync {
       console.log('Data-objects write initiated');
     }
 
-    // TODO: Duplicated code form data-objects
+    // TODO: Duplicated code from data-objects
     if ('data-source-items.json' in unpacked.files) {
       operations.push(new Promise(function(resolve, reject) {
         unpacked.file('data-source-items.json').async('text').then(function(dataSourceItemsRaw) {
           let dataSourceItems = JSON.parse(dataSourceItemsRaw);
           let dataSourceItemOperations = [];
 
-          for (let dataSourceItem of dataSourceItems) {
+          for (let dataSourceItem of dataSourceItems) {
             let code;
             if (dataSourceItem.stylesheet) {
               code = Buffer.from(dataSourceItem.stylesheet, 'base64').toString('utf8');
