@@ -136,18 +136,20 @@ class DynappObjects {
     let [newObjects, changedObjects, deletedObjects] = await this.dirty();
 
     let logString = this.folder + ' - ';
+    let changeInfo = []
     if (newObjects.length > 0) {
-      logString += newObjects.length+' new';
+      changeInfo.push(newObjects.length + ' new');
     }
     if (changedObjects.length > 0) {
-      logString += changedObjects.length+' changed';
+      changeInfo.push(changedObjects.length + ' changed');
     }
     if (deletedObjects.length > 0) {
-      logString += deletedObjects.length+' deleted';
+      changeInfo.push(deletedObjects.length + ' deleted');
     }
     if (newObjects.length + changedObjects.length + deletedObjects.length == 0) {
-      logString += 'No changes';
+      changeInfo.push('No changes');
     }
+    logString += changeInfo.join(', ');
     console.log(logString);
 
     for (let obj of newObjects) {
