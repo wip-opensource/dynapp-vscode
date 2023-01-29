@@ -56,6 +56,10 @@ For more details: https://code.visualstudio.com/api/working-with-extensions/publ
 
 ## Release Notes
 
+### 1.2.1
+
+* Changed to removing not ignored files on download instead of copying ignored files to a temp folder and back while clearing workspace
+
 ### 1.2.0
 
 * Added support for a .dynappignore file to specify files not to sync
