@@ -17,12 +17,15 @@ const rmdir = async function(dir) {
     for (let i = 0; i < files.length; i++) {
       let file = files[i];
       let fileName = path.join(dir, file);
-      let stat = fs.statSync(fileName);
-
+      let stat;
+      try {
+          stat = fs.statSync(fileName);
+      } catch(err) {
+      }
       if (fileName == "." || fileName == "..") {
           // pass these files
           continue;
-      } else if (stat.isDirectory()) {
+      } else if (stat && stat.isDirectory()) {
           // rmdir recursively
           await rmdir(fileName);
       } else {
@@ -46,9 +49,12 @@ async function listFiles(folder, filter) {
   for (let i = 0; i < files.length; i++) {
     let file = files[i];
     let fileWithPath = path.join(folder, file);
-
-    let stats = await fs.stat(fileWithPath);
-    if (stats.isDirectory()) {
+    let stats;
+    try {
+      stats = await fs.stat(fileWithPath);
+    } catch (err) {
+    }
+    if (stats && stats.isDirectory()) {
       let subFiles = await listFiles(path.join(folder, file), filter);
       subFiles.forEach(subFile => {
         result.push(path.join(file, subFile));
@@ -293,19 +299,16 @@ class DynappObjects {
     return [newObjects, changedObjects, deletedObjects];
   }
 
-  async copyIgnored (dest) {
-    // Copy ignored files to a given destination
+  async removeNonIgnored () {
+    // Remove files that are not ignored
     let objectsPath = this._objectsPath();
-    let files = await listFiles(objectsPath, this.getIgnoredFilter());
+    let files = await listFiles(objectsPath, this.getNotIgnoredFilter());
     let fileMovements = [];
     for (let file of files) {
       let fileMovement = new Promise((resolve, reject) => {
-        let targetFile = path.join(dest, this.folder, file);
-        mkdirp(path.dirname(targetFile)).then(() => {
-          fs.copyFile(path.join(objectsPath, file), targetFile).then(resolve, reject)
-        }, reject);
-      })
-      fileMovements.push(fileMovement)
+        fs.unlink(path.join(objectsPath, file)).then(resolve, reject);
+      });
+      fileMovements.push(fileMovement);
     }
     return await Promise.all(fileMovements);
   }
@@ -441,41 +444,13 @@ class Sync {
     console.log('Zip unpacked');
     const workpath = config.workPath();
 
-    // Create a temp folder for items to be kept
-    let tempdir = path.join(workpath, '.dynapp-temp')
-    try {
-      await rmdir(tempdir);
-    } catch (ex) {
-      // tempdir doesn't exist
-    }
-    await fs.mkdir(tempdir)
-    await fs.mkdir(path.join(tempdir, 'data-items'));
-    await fs.mkdir(path.join(tempdir, 'data-source-items'));
-    await fs.mkdir(path.join(tempdir, 'data-objects'));
-    console.log('Created temp folder');
-
-    // Copy files that match .dynappignore to temp folder
+    // Remove files that doesn't match .dynappignore
     await Promise.all([
-      this.dataItems.copyIgnored(tempdir),
-      this.dataSourceItems.copyIgnored(tempdir),
-      this.dataObjects.copyIgnored(tempdir)
+      this.dataItems.removeNonIgnored(),
+      this.dataSourceItems.removeNonIgnored(),
+      this.dataObjects.removeNonIgnored()
     ]);
-    console.log('Moved ignored files to temp');
-
-    // Clear working folders
-    await rmdir(path.join(workpath, 'data-items'));
-    await rmdir(path.join(workpath, 'data-source-items'));
-    await rmdir(path.join(workpath, 'data-objects'));
-    console.log('Removed folders');
-
-    // Move back files from temp folder as working folders
-    await fs.rename(path.join(tempdir, 'data-items'), path.join(workpath, 'data-items'));
-    await fs.rename(path.join(tempdir, 'data-source-items'), path.join(workpath, 'data-source-items'));
-    await fs.rename(path.join(tempdir, 'data-objects'), path.join(workpath, 'data-objects'));
-    console.log('Returned ignored files and created folders');
-    await rmdir(tempdir);
-    console.log('Removed temp folder');
-
+    console.log('Removed non-ignored files');
 
     let operations = [];
     let dataItemsMeta = [];
