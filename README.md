@@ -1,4 +1,4 @@
-# dynappvscode README
+# dynapp-vscode README
 
 
 This extension alows vscode to download and publish to Dynapp, developed by WIP AB.
@@ -6,9 +6,9 @@ It has directly been taken from the atom package dynapp-atom
 https://github.com/wip-opensource/dynapp-atom
 
 # Get started!
-* Download dynappvscode-x.x.x.vsix
+* Download dynapp-vscode-x.x.x.vsix
 * Open vsCode>File>Preferences>Extensions
-* Click dot meny in EXTENSIONS tab > Install from VSIX > locate dynappvscode-x.x.x.vsix
+* Click dot meny in EXTENSIONS tab > Install from VSIX > locate dynapp-vscode-x.x.x.vsix
 * In your directory, open commands with "ctrl+shift+p" and run "create dynapp config" or ctrl+alt+C (mac: shift+cmd+c)
 * Open the new file 'dynappconfig.json' and enter your credentials.
 * run "download from dynapp" (or ctrl + alt + o) to download your project from dynapp-server.
