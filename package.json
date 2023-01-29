@@ -3,7 +3,7 @@
   "displayName": "Dynapp VsCode",
   "description": "Dynapp syncing for VsCode",
   "icon": "icon.png",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "engines": {
     "vscode": "^1.70.0"
   },
