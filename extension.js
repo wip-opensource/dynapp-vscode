@@ -134,9 +134,7 @@ async function upload() {
 	try {
 		// TODO: Move config out of dynapp/ and pass config to upload
 		let _sync = new sync.Sync();
-		console.log("innan upload")
 		await _sync.upload();
-		console.log("efter upload")
 		console.log('Uploading Done!');
 		vscode.window.showInformationMessage('Files are uploaded');
 	} catch (err) {
