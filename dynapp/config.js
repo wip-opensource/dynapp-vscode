@@ -9,7 +9,7 @@ function projectPath () {
     console.log('Project path is not defined');
     return null;
   }
-  return pPaths.map(folder => folder.uri.path)[0];
+  return pPaths[0].uri.fsPath;
 }
 
 function projectFilePath (relativePath) {
