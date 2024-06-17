@@ -109,7 +109,7 @@ class DynappObjects {
     return ignoreContent
       .split('\n')
       .filter(line => !!line && line[0] != '#')
-      .map(line => new RegExp(line.replace(/\//g, path.sep)));
+      .map(line => new RegExp(line.replace(/\//g, '\\' + path.sep)));
   }
 
   getIgnoredFilter () {
