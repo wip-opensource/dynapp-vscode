@@ -56,6 +56,11 @@ For more details: https://code.visualstudio.com/api/working-with-extensions/publ
 
 ## Release Notes
 
+### 1.2.3
+
+* Don't fail upload when missing data-sources folder
+* Improve error messages
+
 ### 1.2.1
 
 * Changed to removing not ignored files on download instead of copying ignored files to a temp folder and back while clearing workspace

@@ -4,6 +4,15 @@ const config = require('./config');
 const urljoin = require('url-join');
 const mime = require('mime-types');
 
+class StatusCodeError extends Error {
+  constructor(response) {
+    super(`Status Code Error: ${response.status}`);
+    this.name = 'StatusCodeError';
+    this.status = response.status;
+    this.response = response;
+  }
+}
+
 function auth() {
   // TODO: Better interface to config
   let _auth = config.config();
@@ -26,9 +35,11 @@ function _headers(headers) {
 }
 
 function getResponseData(resp) {
+  if (resp.status != 200) {
+    throw new StatusCodeError(resp);
+  }
   return new Promise(function(resolve, reject) {
     var data = [];
-
     resp.body.on("data", function (chunk) {
       data.push(chunk);
     });
@@ -153,5 +164,6 @@ module.exports = {
   updateDataObject,
   createDataObject,
   deleteDataObject,
-  downloadApp
+  downloadApp,
+  StatusCodeError
 };

@@ -5,6 +5,7 @@ const config = require('./dynapp/config');
 const fs = require('fs-extra');
 const path = require('path');
 const sync = require('./dynapp/sync');
+const api = require('./dynapp/api');
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
@@ -103,18 +104,18 @@ async function download() {
 
 	try {
 		await createWorkFolder(config.workPath());
-		
+
 		await _sync.download();
 		console.log('Downloading Done!');
 		vscode.window.showInformationMessage('Project downloaded');
 	} catch (err) {
 		console.error(err);
 		var error_message = 'Check logs for more info.';
-		if (err.name === 'StatusCodeError') {
-			error_message = '' + err.statusCode + ', '
-			if (err.statusCode == 401 || err.statusCode == 403) {
+		if (err instanceof api.StatusCodeError) {
+			error_message = '' + err.status + ', '
+			if (err.status == 401 || err.status == 403) {
 				error_message += 'Check credentials.';
-			} else if (err.statusCode == 404) {
+			} else if (err.status == 404) {
 				error_message += 'Check group, app and baseurl.';
 			} else {
 				error_message += 'Check logs for more info.';
@@ -140,11 +141,11 @@ async function upload() {
 	} catch (err) {
 		console.error(err);
 		var error_message = 'Check logs for more info.';
-		if (err.name === 'StatusCodeError') {
-			error_message = '' + err.statusCode + ', '
-			if (err.statusCode == 401 || err.statusCode == 403) {
+		if (err instanceof api.StatusCodeError) {
+			error_message = '' + err.status + ', '
+			if (err.status == 401 || err.status == 403) {
 				error_message += 'Check credentials.';
-			} else if (err.statusCode == 404) {
+			} else if (err.status == 404) {
 				error_message += 'Check group, app and baseurl.';
 			} else {
 				error_message += 'Check logs for more info.';

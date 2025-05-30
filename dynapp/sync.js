@@ -44,8 +44,13 @@ const rmdir = async function(dir) {
 /* TODO: Can be optimized by not simply awaiting everything. Next file could be read in parallel. */
 async function listFiles(folder, filter) {
   let result = [];
-
-  let files = await fs.readdir(folder);
+  let files
+  try {
+    files = await fs.readdir(folder);
+  } catch (error) {
+    console.log(`No folder: "${folder}"`);
+    return result;
+  }
   for (let i = 0; i < files.length; i++) {
     let file = files[i];
     let fileWithPath = path.join(folder, file);
@@ -167,7 +172,7 @@ class DynappObjects {
     for (let obj of deletedObjects) {
       operations.push(this.deleteObject(obj).catch(err => {
         // File has been removed by other means, everything is good
-        if (err.statusCode && err.statusCode === 404)
+        if (err instanceof api.StatusCodeError && err.status === 404)
           return err.message;
         else
           throw err;
