@@ -35,7 +35,7 @@ function _headers(headers) {
 }
 
 function getResponseData(resp) {
-  if (resp.status != 200) {
+  if (resp.status < 200 || resp.status > 299) {
     throw new StatusCodeError(resp);
   }
   return new Promise(function(resolve, reject) {
